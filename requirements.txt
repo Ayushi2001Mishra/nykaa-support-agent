@@ -1,0 +1,11 @@
+# pin exact versions after your first successful run: pip freeze > requirements.lock
+crewai
+chromadb
+sentence-transformers
+langchain-core
+fastapi
+uvicorn
+httpx
+pydantic>=2
+autogen-agentchat
+autogen-core

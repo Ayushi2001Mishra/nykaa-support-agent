@@ -1,0 +1,36 @@
+{
+  "fixed": {
+    "in_scope": {
+      "How many days do I have to return a lipstick?": 0.5382,
+      "How long will a refund take for cash on delivery?": 0.77,
+      "Can I swap my sneakers for a bigger size?": 0.3561,
+      "What happens if my payment failed but money was deducted?": 0.5905,
+      "Who handles my complaint if the support agent cannot solve it?": 0.4557
+    },
+    "out_of_scope": {
+      "Who won the cricket world cup?": 0.1178,
+      "Write a poem about the moon": 0.0666,
+      "What is the capital of France?": 0.0861
+    },
+    "in_scope_min": 0.3561,
+    "out_of_scope_max": 0.1178,
+    "threshold": 0.237
+  },
+  "sentence": {
+    "in_scope": {
+      "How many days do I have to return a lipstick?": 0.6522,
+      "How long will a refund take for cash on delivery?": 0.6677,
+      "Can I swap my sneakers for a bigger size?": 0.3749,
+      "What happens if my payment failed but money was deducted?": 0.6926,
+      "Who handles my complaint if the support agent cannot solve it?": 0.404
+    },
+    "out_of_scope": {
+      "Who won the cricket world cup?": 0.1328,
+      "Write a poem about the moon": 0.1135,
+      "What is the capital of France?": 0.1047
+    },
+    "in_scope_min": 0.3749,
+    "out_of_scope_max": 0.1328,
+    "threshold": 0.2539
+  }
+}

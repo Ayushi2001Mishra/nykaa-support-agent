@@ -1,0 +1,8 @@
+threshold (80th pct of scores): 0.2775
+distribution min/median/max: 0.018 0.1305 0.39
+share >= threshold: 21.7 %
+{'found': True, 'record_id': 'NYK-1001', 'status': 'Returned', 'order_value_inr': 2488, 'escalation_score': 0.0495, 'escalation_threshold': 0.2775, 'escalate': False}
+{'found': True, 'record_id': 'NYK-1002', 'status': 'Delivered', 'order_value_inr': 3938, 'escalation_score': 0.0315, 'escalation_threshold': 0.2775, 'escalate': False}
+{'found': True, 'record_id': 'NYK-1003', 'status': 'Refunded', 'order_value_inr': 533, 'escalation_score': 0.108, 'escalation_threshold': 0.2775, 'escalate': False}
+{'found': True, 'record_id': 'NYK-1004', 'status': 'Returned', 'order_value_inr': 4348, 'escalation_score': 0.081, 'escalation_threshold': 0.2775, 'escalate': False}
+{'found': False, 'record_id': 'NYK-9999', 'error': 'order not found'}

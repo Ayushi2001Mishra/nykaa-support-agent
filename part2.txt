@@ -1,0 +1,41 @@
+C:\Users\Administrator\Desktop\nykaa_capstone\demo_part2.py:5: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+  import chat, rag
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights:   2%|▏         | 2/103 [00:01<00:54,  1.84it/s]Loading weights:  11%|█         | 11/103 [00:01<00:08, 11.30it/s]Loading weights:  55%|█████▌    | 57/103 [00:01<00:00, 69.30it/s]Loading weights:  74%|███████▍  | 76/103 [00:01<00:00, 84.98it/s]Loading weights:  92%|█████████▏| 95/103 [00:01<00:00, 103.43it/s]Loading weights: 100%|██████████| 103/103 [00:01<00:00, 64.42it/s]
+== Task 6: escalation score ==
+formula: score = (0.55*delayed + 0.45*days_since_created/30) * (1.0 if Placed/Shipped else 0.3)
+threshold = 80th percentile of my 60 generated scores = 0.2775 (top 21.7% of orders)
+highest-score order: {'found': True, 'record_id': 'NYK-1026', 'status': 'Shipped', 'order_value_inr': 4000, 'escalation_score': 0.39, 'escalation_threshold': 0.2775, 'escalate': True}
+
+== Task 7: crew via .kickoff(); tools invoked on different queries ==
+
+[policy query -> expect rag_lookup]
+  tools invoked: [('rag_lookup', {'query': 'What is the return window for beauty products?'})]
+  answer: Nykaa accepts returns within a window that depends on the product category. Beauty products can be returned within 15 days of delivery as long as they are unopened and the seal is intact.
+  sources: ['return_window'] escalate=False
+
+[order query  -> expect check_order_status too]
+  tools invoked: [('rag_lookup', {'query': 'What is the status of order NYK-1026?'}), ('check_order_status', {'record_id': 'NYK-1026'})]
+  answer: If an item arrives damaged or defective, the customer must raise a claim within 48 hours of delivery. Order NYK-1026 is currently Shipped with an order value of ₹4000. It has been flagged for escalation to Level 2 support.
+  sources: ['damaged_item', 'order_db:NYK-1026'] escalate=True
+
+== Task 8: session memory ==
+-- conversation A (state carried across turns) --
+USER: What is the status of order NYK-1026?
+BOT : If an item arrives damaged or defective, the customer must raise a claim within 48 hours of delivery. Order NYK-1026 is currently Shipped with an order value of ₹4000. It has been flagged for escalation to Level 2 support.   (order resolved from history: NYK-1026)
+USER: Has my order been delayed, and should it be escalated?
+BOT : r the promised date is treated as a delayed shipment. An order in Placed status can be cancelled free of charge until it is packed. Order NYK-1026 is currently Shipped with an order value of ₹4000. It has been flagged for escalation to Level 2 support.   (order resolved from history: NYK-1026)
+-- conversation B (fresh session: state must be ABSENT) --
+USER: Has my order been delayed, and should it be escalated?
+BOT : Please share your order id (like NYK-1005) so I can look it up.   (order resolved: None)
+
+== Task 9: structured output ==
+valid SupportResponse: {"answer":"Refunds for Cash on Delivery orders are paid by bank transfer, because there is no card or wallet payment to reverse. Cancelled Cash on Delivery orders need no refund because nothing was paid.","grounded":true,"sources":["cod_refund","order_cancellation"],"order":null,"escalate":false,"confidence":0.5919,"needs_clarification":false}
+invalid payload rejected: ('confidence',) Input should be less than or equal to 1
+
+== Task 10: guardrails each firing once ==
+PII masking  -> My number is [PHONE] and card ending [CARD_LAST4], what is the apparel return window? ['PHONE', 'CARD_LAST4']
+injection    -> True
+   pipeline: I can't help with that request. True
+groundedness -> I don't know based on Nykaa's support knowledge base. Let me connect you with a human agent. | refusal fired: True retrieval similarity below calibrated threshold
+groundedness on tampered answer -> (False, "unsupported sentence(s): ['Nykaa refunds triple the price of any returned item.']")

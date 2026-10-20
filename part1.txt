@@ -1,0 +1,66 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+== Task 3: index both strategies ==
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights:  36%|███▌      | 37/103 [00:00<00:00, 236.79it/s]Loading weights:  59%|█████▉    | 61/103 [00:00<00:00, 118.27it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 194.90it/s]
+chunks per collection: {'fixed': 25, 'sentence': 50}
+[fixed] sample retrieval: [('cod_refund', 0.7215), ('order_cancellation', 0.6446), ('reverse_pickup', 0.4001)]
+[sentence] sample retrieval: [('cod_refund', 0.7437), ('order_cancellation', 0.6893), ('order_cancellation', 0.4646)]
+
+== Task 4: threshold calibration (top-1 cosine similarity) ==
+[fixed] in-scope: {'How many days do I have to return a lipstick?': 0.5382, 'How long will a refund take for cash on delivery?': 0.77, 'Can I swap my sneakers for a bigger size?': 0.3561, 'What happens if my payment failed but money was deducted?': 0.5905, 'Who handles my complaint if the support agent cannot solve it?': 0.4557}
+[fixed] out-of-scope: {'Who won the cricket world cup?': 0.1178, 'Write a poem about the moon': 0.0666, 'What is the capital of France?': 0.0861}
+[fixed] in-scope min=0.3561  out-of-scope max=0.1178  -> threshold=0.237
+[sentence] in-scope: {'How many days do I have to return a lipstick?': 0.6522, 'How long will a refund take for cash on delivery?': 0.6677, 'Can I swap my sneakers for a bigger size?': 0.3749, 'What happens if my payment failed but money was deducted?': 0.6926, 'Who handles my complaint if the support agent cannot solve it?': 0.404}
+[sentence] out-of-scope: {'Who won the cricket world cup?': 0.1328, 'Write a poem about the moon': 0.1135, 'What is the capital of France?': 0.1047}
+[sentence] in-scope min=0.3749  out-of-scope max=0.1328  -> threshold=0.2539
+
+== Task 4: grounded generation (strategy=fixed) ==
+Q: What is the return window for beauty products?
+   grounded=True top_sim=0.5654 thr=0.237 sources=['return_window']
+   A: Nykaa accepts returns within a window that depends on the product category. Beauty products can be returned within 15 days of delivery as long as they are unopened and the seal is intact.
+Q: How will I get my refund for a cash on delivery order?
+   grounded=True top_sim=0.7327 thr=0.237 sources=['cod_refund', 'order_cancellation']
+   A: Refunds for Cash on Delivery orders are paid by bank transfer, because there is no card or wallet payment to reverse. Cancelled Cash on Delivery orders need no refund because nothing was paid.
+Q: My shoes are the wrong size, can I swap them?
+   grounded=True top_sim=0.3432 thr=0.237 sources=['size_exchange']
+   A: Size exchanges are available for Apparel and Footwear within 15 days of delivery, subject to stock. If the requested size is out of stock, the customer receives a refund instead.
+Q: Can I cancel my order after it has shipped?
+   grounded=True top_sim=0.6805 thr=0.237 sources=['order_cancellation', 'international_shipping']
+   A: Once an order is Shipped it can no longer be cancelled, so the customer should refuse delivery or request a return after receiving it. International orders cannot be cancelled once shipped and are not eligible for reverse pickup.
+Q: Will you pick up my return from home?
+   grounded=True top_sim=0.4404 thr=0.237 sources=['reverse_pickup', 'return_window']
+   A: An item is eligible if it is still inside its category return window and is not a final-sale product. Electronics have a 7-day return window, and Home items have a 10-day return window.
+Q: How many points do I need to use my loyalty rewards?
+   grounded=True top_sim=0.7058 thr=0.237 sources=['loyalty_points']
+   A: Customers earn 1 loyalty point for every 100 rupees spent on delivered orders. Each point is worth 1 rupee, and at least 200 points are needed before any redemption.
+Q: Who won the cricket world cup?
+   grounded=False top_sim=0.1178 thr=0.237 sources=[]
+   A: I don't know based on Nykaa's support knowledge base. Let me connect you with a human agent.
+
+== Task 5: document-level precision / recall (k=4 chunks, dedup to parent docs) ==
+
+Q: What is the return window for beauty products?   gold=['return_window']
+  [fixed   ] retrieved docs=['return_window', 'size_exchange', 'loyalty_points']  precision=1/3=0.33  recall=1/1=1.00
+  [sentence] retrieved docs=['return_window', 'gift_wrap', 'reverse_pickup']  precision=1/3=0.33  recall=1/1=1.00
+
+Q: How will I get my refund for a cash on delivery order?   gold=['cod_refund']
+  [fixed   ] retrieved docs=['cod_refund', 'order_cancellation', 'damaged_item', 'reverse_pickup']  precision=1/4=0.25  recall=1/1=1.00
+  [sentence] retrieved docs=['cod_refund', 'order_cancellation', 'size_exchange']  precision=1/3=0.33  recall=1/1=1.00
+
+Q: My shoes are the wrong size, can I swap them?   gold=['size_exchange']
+  [fixed   ] retrieved docs=['size_exchange', 'international_shipping', 'return_window']  precision=1/3=0.33  recall=1/1=1.00
+  [sentence] retrieved docs=['size_exchange', 'return_window', 'warranty']  precision=1/3=0.33  recall=1/1=1.00
+
+Q: Can I cancel my order after it has shipped?   gold=['order_cancellation']
+  [fixed   ] retrieved docs=['order_cancellation', 'payment_failure', 'international_shipping']  precision=1/3=0.33  recall=1/1=1.00
+  [sentence] retrieved docs=['order_cancellation', 'international_shipping', 'payment_failure']  precision=1/3=0.33  recall=1/1=1.00
+
+Q: Will you pick up my return from home?   gold=['return_window', 'reverse_pickup']
+  [fixed   ] retrieved docs=['reverse_pickup', 'return_window', 'cod_refund']  precision=2/3=0.67  recall=2/2=1.00
+  [sentence] retrieved docs=['reverse_pickup', 'return_window', 'order_cancellation', 'international_shipping']  precision=2/4=0.50  recall=2/2=1.00
+
+Q: How many points do I need to use my loyalty rewards?   gold=['loyalty_points']
+  [fixed   ] retrieved docs=['loyalty_points', 'escalation_matrix']  precision=1/2=0.50  recall=1/1=1.00
+  [sentence] retrieved docs=['loyalty_points']  precision=1/1=1.00  recall=1/1=1.00
+
+MEAN over 6 queries: {'fixed': {'precision': 0.403, 'recall': 1.0}, 'sentence': {'precision': 0.472, 'recall': 1.0}}
+-> Write your 2-3 sentence recommendation in README.md citing these numbers, then set CHUNKING=<winner>.

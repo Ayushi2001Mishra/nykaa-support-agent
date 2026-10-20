@@ -1,0 +1,9 @@
+SEED=1 (first valid seed scanning up from 1)
+category weights: {'Apparel': 0.22, 'Electronics': 0.14, 'Home': 0.18, 'Footwear': 0.2, 'Beauty': 0.26}
+status weights:   {'Placed': 0.14, 'Shipped': 0.18, 'Delivered': 0.42, 'Returned': 0.14, 'Refunded': 0.12}
+price ranges INR: {'Beauty': (199, 3999), 'Apparel': (399, 6999), 'Footwear': (599, 8999), 'Home': (499, 9999), 'Electronics': (999, 24999)}
+reasoning: Ranges follow typical Nykaa basket sizes: beauty items are small-ticket (Rs 199-3,999) while electronics reach Rs 24,999.
+count per category: {'Apparel': 17, 'Home': 15, 'Electronics': 10, 'Beauty': 11, 'Footwear': 7}
+count per status:   {'Returned': 8, 'Delivered': 30, 'Refunded': 7, 'Placed': 10, 'Shipped': 5}
+delayed_shipment=True: 18.3%   problems: none
+sample: {'record_id': 'NYK-1001', 'category': 'Apparel', 'status': 'Returned', 'order_value_inr': 2488, 'days_since_created': 11, 'delayed_shipment': False}
